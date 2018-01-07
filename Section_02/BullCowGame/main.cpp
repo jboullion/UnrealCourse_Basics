@@ -7,23 +7,25 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+#include "FBullCowGame.h"
 
-void PrintIntro(int WORD_LENGTH);
-bool PlayGame(int WORD_LENGTH);
-string GetGuess(int WORD_LENGTH);
-void PrintResult(string WORD_LENGTH);
+void PrintIntro(int WordLength);
+bool PlayGame(int WordLength);
+std::string GetGuess(int CurrentTry);
+void PrintResult(std::string Guess);
 bool PlayAgain(bool success);
+
+FBullCowGame BCGame;
 
 int main()
 {	
-	constexpr int WORD_LENGTH = 10;
+	int WordLength = BCGame.GetWordLength();
 	int success = false;
 
 	do
 	{
-		PrintIntro(WORD_LENGTH);
-		success = PlayGame(WORD_LENGTH);
+		PrintIntro(WordLength);
+		success = PlayGame(WordLength);
 	}
 	while (PlayAgain(success));
 
@@ -32,14 +34,17 @@ int main()
 
 
 //Game logic
-bool PlayGame(int WORD_LENGTH)
+bool PlayGame(int WordLength)
 {
+	
 	//How many guesses before failure
 	constexpr int NUM_GUESSES = 5;
+	int CurrentTry = BCGame.GetCurrentTry();
 
-	for (int count = 1; count <= NUM_GUESSES; count++)
+	for (int CurrentTry = 1; CurrentTry <= NUM_GUESSES; CurrentTry++)
 	{
-		PrintResult(GetGuess(WORD_LENGTH));
+		BCGame.SetCurrentTry(CurrentTry);
+		PrintResult(GetGuess(CurrentTry));
 	}
 
 	return true; //success or failure
@@ -48,19 +53,19 @@ bool PlayGame(int WORD_LENGTH)
 //On success or failure, ask the user to play again
 bool PlayAgain(bool success)
 {	
-	string response = "";
+	std::string response = "";
 
-	cout << endl;
+	std::cout << std::endl;
 	if (success) {
-		cout << "You're so smart! Play again? (y/n) ";
+		std::cout << "You're so smart! Play again? (y/n) ";
 	}
 	else 
 	{
-		cout << "You're a loser in life don't be a loser in the game! Play again? (y/n) ";
+		std::cout << "You're a loser in life don't be a loser in the game! Play again? (y/n) ";
 	}
 
-	getline(cin, response);
-	cout << endl;
+	std::getline(std::cin, response);
+	std::cout << std::endl;
 
 	return (response[0] == 'y' || response[0] == 'Y');
 	
@@ -68,35 +73,35 @@ bool PlayAgain(bool success)
 
 
 //Welcome the users
-void PrintIntro(int WORD_LENGTH)
+void PrintIntro(int WordLength)
 {
 	
-	cout << "Welcome to Bullseyes and Cow Pies!\n"; // << std::endl stands for "End Line" and works similarly to \n;
-	cout << "Guess the magic word bitch!\n";
-	cout << "The magic word is " << WORD_LENGTH << " letters long.\n";
-	cout << endl;
+	std::cout << "Welcome to Bullseyes and Cow Pies!\n"; // << std::endl stands for "End Line" and works similarly to \n;
+	std::cout << "Guess the magic word bitch!\n";
+	std::cout << "The magic word is " << WordLength << " letters long.\n";
+	std::cout << std::endl;
 
 	return;
 }
 
 
 //Get a guess from the user
-string GetGuess(int WORD_LENGTH)
+std::string GetGuess(int CurrentTry)
 {
-	string Guess = "";
+	std::string Guess = "";
 
-	cout << "Show me what you got: ";
+	std::cout << std::endl << CurrentTry << ". Show me what you got: ";
 
-	getline(cin, Guess);
+	std::getline(std::cin, Guess);
 
 	return Guess;
 }
 
 //Show the user the result of their guess
-void PrintResult(string Guess) {
+void PrintResult(std::string Guess) {
 
 	//Return feedback to user
-	cout << "\nYou Guessed: " << Guess << endl;
+	std::cout << "You Guessed: " << Guess << std::endl;
 
 	return;
 }

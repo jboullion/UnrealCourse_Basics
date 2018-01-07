@@ -1,12 +1,8 @@
 #include "FBullCowGame.h"
 
+//Getters
+int FBullCowGame::GetWordLength() {	return WordLength; }
+int FBullCowGame::GetCurrentTry() {	return CurrentTry; }
 
-
-FBullCowGame::FBullCowGame()
-{
-}
-
-
-FBullCowGame::~FBullCowGame()
-{
-}
+//Setters
+void FBullCowGame::SetCurrentTry(int count) { CurrentTry = count; }
