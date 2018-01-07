@@ -4,23 +4,33 @@
  * Author: James Boullion
  */
 
+/**
+ * This is the class which displays and retrieves information from the user.
+ * This can be thought of as the VIEW in the MVC pattern.
+ */
+
+//system includes
 #include <iostream>
 #include <string>
 
+//custom includes
 #include "FBullCowGame.h"
 
-void PrintIntro(int WordLength);
-bool PlayGame(int WordLength);
-std::string GetGuess(int CurrentTry);
-void PrintResult(std::string Guess);
+using FText = std::string;
+using int32 = int;// int32_t;
+
+void PrintIntro(int32  WordLength);
+bool PlayGame(int32  WordLength);
+FText GetGuess(int32  CurrentTry);
+void PrintResult(FText Guess);
 bool PlayAgain(bool success);
 
 FBullCowGame BCGame;
 
 int main()
 {	
-	int WordLength = BCGame.GetWordLength();
-	int success = false;
+	int32  WordLength = BCGame.GetWordLength();
+	int32  success = false;
 
 	do
 	{
@@ -34,17 +44,28 @@ int main()
 
 
 //Game logic
-bool PlayGame(int WordLength)
+bool PlayGame(int32  WordLength)
 {
-	
-	//How many guesses before failure
-	constexpr int NUM_GUESSES = 5;
-	int CurrentTry = BCGame.GetCurrentTry();
+	BCGame.Reset();
 
-	for (int CurrentTry = 1; CurrentTry <= NUM_GUESSES; CurrentTry++)
+	//How many guesses before failure
+	int32  MaxTries = BCGame.GetMaxTries();
+	int32  CurrentTry = BCGame.GetCurrentTry();
+	int32 ValidGuess = 0;
+
+	FBullCowCount BullCowCount;
+
+	FString Guess = "";
+
+	for (int32  CurrentTry = 1; CurrentTry <= MaxTries; CurrentTry++)
 	{
 		BCGame.SetCurrentTry(CurrentTry);
-		PrintResult(GetGuess(CurrentTry));
+		Guess = GetGuess(CurrentTry);
+		ValidGuess = BCGame.IsValidGuess(Guess);
+		if (ValidGuess) {
+			BullCowCount = BCGame.IsCorrectGuess(Guess);
+		}
+		PrintResult(BullCowCount);
 	}
 
 	return true; //success or failure
@@ -53,7 +74,7 @@ bool PlayGame(int WordLength)
 //On success or failure, ask the user to play again
 bool PlayAgain(bool success)
 {	
-	std::string response = "";
+	FText response = "";
 
 	std::cout << std::endl;
 	if (success) {
@@ -73,7 +94,7 @@ bool PlayAgain(bool success)
 
 
 //Welcome the users
-void PrintIntro(int WordLength)
+void PrintIntro(int32  WordLength)
 {
 	
 	std::cout << "Welcome to Bullseyes and Cow Pies!\n"; // << std::endl stands for "End Line" and works similarly to \n;
@@ -86,9 +107,9 @@ void PrintIntro(int WordLength)
 
 
 //Get a guess from the user
-std::string GetGuess(int CurrentTry)
+FText GetGuess(int32  CurrentTry)
 {
-	std::string Guess = "";
+	FText Guess = "";
 
 	std::cout << std::endl << CurrentTry << ". Show me what you got: ";
 
@@ -98,10 +119,20 @@ std::string GetGuess(int CurrentTry)
 }
 
 //Show the user the result of their guess
-void PrintResult(std::string Guess) {
+void PrintResult(FBullCowCount BullCowCount)
+{
+	bool bPlayerWon = BCGame.DidPlayerWin(BullCowCount);
 
 	//Return feedback to user
-	std::cout << "You Guessed: " << Guess << std::endl;
+	if (bPlayerWon)
+	{
+		std::cout << "That is correct! You Win!" << std::endl;
+	}
+	else
+	{
+		std::cout << "Your guess contained " << BullCowCount.Bulls << " bulls and " << BullCowCount.Cows << " cows." << std::endl;
+	}
+	
 
 	return;
 }
