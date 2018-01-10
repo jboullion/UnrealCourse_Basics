@@ -19,23 +19,23 @@
 using FText = std::string;
 using int32 = int;// int32_t;
 
-void PrintIntro(int32  WordLength);
-bool PlayGame(int32  WordLength);
-FText GetGuess(int32  CurrentTry);
-void PrintResult(FText Guess);
+void PrintIntro();
+bool PlayGame();
+FText GetGuess();
+bool ReturnResult(FBullCowCount BullCowCount);
 bool PlayAgain(bool success);
+void PrintError(EGuessValidity GuessError);
 
 FBullCowGame BCGame;
 
 int main()
 {	
-	int32  WordLength = BCGame.GetWordLength();
 	int32  success = false;
 
 	do
 	{
-		PrintIntro(WordLength);
-		success = PlayGame(WordLength);
+		PrintIntro();
+		success = PlayGame();
 	}
 	while (PlayAgain(success));
 
@@ -44,31 +44,66 @@ int main()
 
 
 //Game logic
-bool PlayGame(int32  WordLength)
+bool PlayGame()
 {
 	BCGame.Reset();
 
 	//How many guesses before failure
-	int32  MaxTries = BCGame.GetMaxTries();
-	int32  CurrentTry = BCGame.GetCurrentTry();
-	int32 ValidGuess = 0;
+	int32 MaxTries = BCGame.GetMaxTries();
+	int32 CurrentTry = BCGame.GetCurrentTry();
+	EGuessValidity ValidGuess;
+	bool bPlayerWon = false;
 
 	FBullCowCount BullCowCount;
 
 	FString Guess = "";
 
-	for (int32  CurrentTry = 1; CurrentTry <= MaxTries; CurrentTry++)
+	//for (int32  CurrentTry = 1; CurrentTry <= MaxTries; CurrentTry++)
+	do
 	{
-		BCGame.SetCurrentTry(CurrentTry);
-		Guess = GetGuess(CurrentTry);
-		ValidGuess = BCGame.IsValidGuess(Guess);
-		if (ValidGuess) {
-			BullCowCount = BCGame.IsCorrectGuess(Guess);
-		}
-		PrintResult(BullCowCount);
-	}
+		BCGame.UpdateCurrentTry();
+		CurrentTry = BCGame.GetCurrentTry();
+		ValidGuess = EGuessValidity::Empty;
 
-	return true; //success or failure
+		BCGame.SetGuess( GetGuess() );
+		ValidGuess = BCGame.IsValidGuess();
+		if (ValidGuess == EGuessValidity::Good) {
+			BullCowCount = BCGame.IsCorrectGuess();
+			bPlayerWon = ReturnResult(BullCowCount);
+		}
+		else
+		{
+			PrintError(ValidGuess);
+		}		
+
+	} while (!bPlayerWon && CurrentTry < MaxTries);
+
+	return bPlayerWon; //success or failure
+}
+
+void PrintError(EGuessValidity GuessError)
+{
+	switch (GuessError) {
+	case EGuessValidity::Empty:
+		std::cout << "Empty Guess!" << std::endl;
+		break;
+	case EGuessValidity::Too_Long:
+		std::cout << "Too Long!" << std::endl;
+		break;
+	case EGuessValidity::Too_Short:
+		std::cout << "Too Short!" << std::endl;
+		break;
+	case EGuessValidity::Not_Isogram:
+		std::cout << "Not Isogram!" << std::endl;
+		break;
+	case EGuessValidity::Not_Lowercase:
+		std::cout << "Not Lowercase!" << std::endl;
+		break;
+	default:
+		std::cout << "Unknown Invalid!" << std::endl;
+	}
+	
+	return;
 }
 
 //On success or failure, ask the user to play again
@@ -94,9 +129,10 @@ bool PlayAgain(bool success)
 
 
 //Welcome the users
-void PrintIntro(int32  WordLength)
+void PrintIntro()
 {
-	
+	int32 WordLength = BCGame.GetSecretWordLength();
+
 	std::cout << "Welcome to Bullseyes and Cow Pies!\n"; // << std::endl stands for "End Line" and works similarly to \n;
 	std::cout << "Guess the magic word bitch!\n";
 	std::cout << "The magic word is " << WordLength << " letters long.\n";
@@ -107,9 +143,10 @@ void PrintIntro(int32  WordLength)
 
 
 //Get a guess from the user
-FText GetGuess(int32  CurrentTry)
+FText GetGuess()
 {
 	FText Guess = "";
+	int32 CurrentTry = BCGame.GetCurrentTry();
 
 	std::cout << std::endl << CurrentTry << ". Show me what you got: ";
 
@@ -119,7 +156,7 @@ FText GetGuess(int32  CurrentTry)
 }
 
 //Show the user the result of their guess
-void PrintResult(FBullCowCount BullCowCount)
+bool ReturnResult(FBullCowCount BullCowCount)
 {
 	bool bPlayerWon = BCGame.DidPlayerWin(BullCowCount);
 
@@ -134,5 +171,5 @@ void PrintResult(FBullCowCount BullCowCount)
 	}
 	
 
-	return;
+	return bPlayerWon;
 }
