@@ -1,3 +1,12 @@
+#Unreal
+**/Content/StarterContent
+**/Binaries
+**/Config
+**/Intermediate
+**/Saved
+**/Build
+**/.vs
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
